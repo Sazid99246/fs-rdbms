@@ -5,9 +5,9 @@
   "main": "cli.js",
   "scripts": {
     "start": "node index.js",
-    "test": "set TESTING=true&& node --test --test-concurrency=1 tests/api_ch3.test.js",
-    "start:test": "set TESTING=true&& node index.js"
-  },
+    "test": "cross-env TESTING=true node --test --test-concurrency=1 tests/api_ch3.test.js",
+    "start:test": "cross-env TESTING=true node index.js"
+    },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Sazid99246/fs-rdbms.git"
@@ -27,5 +27,8 @@
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.23.1",
     "sequelize": "^6.37.8"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0"
   }
 }
