@@ -4,6 +4,7 @@
   "description": "\"# fs-rdbms\"",
   "main": "cli.js",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,6 +20,8 @@
   "homepage": "https://github.com/Sazid99246/fs-rdbms#readme",
   "dependencies": {
     "dotenv": "^18.0.9",
-    "pg": "^8.23.1"
+    "express": "^5.3.0",
+    "pg": "^8.23.1",
+    "sequelize": "^6.37.8"
   }
 }
