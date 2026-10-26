@@ -5,7 +5,8 @@
   "main": "cli.js",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "set TESTING=true&& node --test --test-concurrency=1 tests/api_ch3.test.js",
+    "start:test": "set TESTING=true&& node index.js"
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,7 @@
   },
   "homepage": "https://github.com/Sazid99246/fs-rdbms#readme",
   "dependencies": {
+    "axios": "^1.20.0",
     "bcrypt": "^6.0.0",
     "dotenv": "^18.0.9",
     "express": "^5.3.0",

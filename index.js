@@ -7,6 +7,7 @@ const { Blog, User } = require('./models')
 const blogsRouter = require('./controllers/blogs')
 const usersRouter = require('./controllers/users')
 const loginRouter = require('./controllers/login')
+const authorsRouter = require('./controllers/authors')
 const { tokenExtractor } = require('./util/tokenExtractor')
 const { errorHandler } = require('./util/middleware')
 
@@ -16,14 +17,36 @@ app.use(tokenExtractor)
 app.use('/api/blogs', blogsRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
+app.use('/api/authors', authorsRouter)
 
 app.use(errorHandler)
+
+app.get('/', (req, res) => {
+  res.status(200).send('OK')
+})
+
+app.post('/api/reset', async (req, res, next) => {
+  try {
+    if (process.env.TESTING !== 'true') {
+      return res.status(403).json({
+        error: 'Reset is only available in the test environment',
+      })
+    }
+
+    await Blog.destroy({ where: {} })
+    await User.destroy({ where: {} })
+
+    res.status(204).end()
+  } catch (error) {
+    next(error)
+  }
+})
 
 const start = async () => {
   await connectToDatabase()
 
-  await Blog.sync()
   await User.sync()
+  await Blog.sync()
 
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
