@@ -1,24 +1,36 @@
 const router = require('express').Router()
-const { Blog } = require('../models')
+const { Blog, User } = require('../models')
+const { userExtractor } = require('../util/tokenExtractor')
 
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
   try {
-    const blogs = await Blog.findAll()
+    const blogs = await Blog.findAll({
+      include: {
+        model: User,
+        attributes: ['id', 'name', 'username'],
+      },
+    })
+
     res.json(blogs)
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Internal server error' })
+    next(error)
   }
 })
 
-
-router.post('/', async (req, res, next) => {
+router.post('/', userExtractor, async (req, res, next) => {
   try {
+    const user = await User.findByPk(req.decodedToken.id)
+
+    if (!user) {
+      return res.status(401).json({ error: 'user not found' })
+    }
+
     const blog = await Blog.create({
       author: req.body.author,
       url: req.body.url,
       title: req.body.title,
       likes: req.body.likes ?? 0,
+      userId: user.id,
     })
 
     res.status(201).json(blog)
@@ -38,18 +50,26 @@ const blogFinder = async (req, res, next) => {
     req.blog = blog
     next()
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Internal server error' })
+    next(error)
   }
 }
 
-router.delete('/:id', blogFinder, async (req, res) => {
+router.delete('/:id', userExtractor, blogFinder, async (req, res, next) => {
   try {
+    const user = await User.findByPk(req.decodedToken.id)
+
+    if (!user) {
+      return res.status(401).json({ error: 'user not found' })
+    }
+
+    if (req.blog.userId !== user.id) {
+      return res.status(403).json({ error: 'only the creator can delete this blog' })
+    }
+
     await req.blog.destroy()
     res.status(204).end()
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Internal server error' })
+    next(error)
   }
 })
 
