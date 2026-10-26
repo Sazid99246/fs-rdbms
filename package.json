@@ -1,0 +1,24 @@
+{
+  "name": "fs-rdbms",
+  "version": "1.0.0",
+  "description": "\"# fs-rdbms\"",
+  "main": "cli.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sazid99246/fs-rdbms.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sazid99246/fs-rdbms/issues"
+  },
+  "homepage": "https://github.com/Sazid99246/fs-rdbms#readme",
+  "dependencies": {
+    "dotenv": "^18.0.9",
+    "pg": "^8.23.1"
+  }
+}
