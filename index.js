@@ -45,9 +45,6 @@ app.post('/api/reset', async (req, res, next) => {
 const start = async () => {
   await connectToDatabase()
 
-  await User.sync()
-  await Blog.sync()
-
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
   })

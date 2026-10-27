@@ -6,8 +6,9 @@
   "scripts": {
     "start": "node index.js",
     "test": "cross-env TESTING=true node --test --test-concurrency=1 tests/api_ch3.test.js",
-    "start:test": "cross-env TESTING=true node index.js"
-    },
+    "start:test": "cross-env TESTING=true node index.js",
+    "db:migrate": "sequelize-cli db:migrate --config config/config.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Sazid99246/fs-rdbms.git"
@@ -29,6 +30,7 @@
     "sequelize": "^6.37.8"
   },
   "devDependencies": {
-    "cross-env": "^10.1.0"
+    "cross-env": "^10.1.0",
+    "sequelize-cli": "^6.6.5"
   }
 }
