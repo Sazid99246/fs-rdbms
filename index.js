@@ -3,7 +3,7 @@ const app = express()
 
 const { PORT } = require('./util/config')
 const { sequelize, connectToDatabase } = require('./util/db')
-const { Blog, User } = require('./models')
+const { Blog, User, Session } = require('./models')
 
 const blogsRouter = require('./controllers/blogs')
 const usersRouter = require('./controllers/users')
@@ -39,6 +39,7 @@ app.post('/api/reset', async (req, res, next) => {
       })
     }
 
+    await Session.destroy({ where: {} })
     await Blog.destroy({ where: {} })
     await User.destroy({ where: {} })
 

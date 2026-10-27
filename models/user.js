@@ -1,4 +1,3 @@
-
 const { Model, DataTypes } = require('sequelize')
 const { sequelize } = require('../util/db')
 
@@ -18,7 +17,6 @@ User.init(
         notEmpty: true,
       },
     },
-
     username: {
       type: DataTypes.TEXT,
       allowNull: false,
@@ -35,6 +33,11 @@ User.init(
     password: {
         type: DataTypes.TEXT,
         allowNull: true,
+    },
+    disabled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
   },
   {

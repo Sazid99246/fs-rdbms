@@ -1,6 +1,7 @@
 const Blog = require('./blog')
 const User = require('./user')
 const ReadingList = require('./readingList')
+const Session = require('./session')
 
 User.hasMany(Blog, {
   as: 'blogs',
@@ -31,8 +32,26 @@ Blog.belongsToMany(User, {
   otherKey: 'userId',
 })
 
+// Database-backed login sessions
+User.hasMany(Session, {
+  as: 'sessions',
+  foreignKey: {
+    name: 'userId',
+    field: 'user_id',
+  },
+  onDelete: 'CASCADE',
+})
+
+Session.belongsTo(User, {
+  foreignKey: {
+    name: 'userId',
+    field: 'user_id',
+  },
+})
+
 module.exports = {
   Blog,
   User,
   ReadingList,
+  Session,
 }

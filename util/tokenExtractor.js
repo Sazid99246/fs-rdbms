@@ -1,32 +1,5 @@
-
 const jwt = require('jsonwebtoken')
-
-// Store active tokens by user ID and track revoked tokens.
-const userTokens = new Map()
-const revokedTokens = new Set()
-
-const registerToken = (userId, token) => {
-  const id = String(userId)
-
-  if (!userTokens.has(id)) {
-    userTokens.set(id, new Set())
-  }
-
-  userTokens.get(id).add(token)
-}
-
-const revokeUserTokens = (userId) => {
-  const id = String(userId)
-  const tokens = userTokens.get(id)
-
-  if (tokens) {
-    for (const token of tokens) {
-      revokedTokens.add(token)
-    }
-
-    userTokens.delete(id)
-  }
-}
+const { Session, User } = require('../models')
 
 const tokenExtractor = (req, res, next) => {
   const authorization = req.get('authorization')
@@ -38,14 +11,10 @@ const tokenExtractor = (req, res, next) => {
   next()
 }
 
-const userExtractor = (req, res, next) => {
+const userExtractor = async (req, res, next) => {
   try {
     if (!req.token) {
       return res.status(401).json({ error: 'token missing' })
-    }
-
-    if (revokedTokens.has(req.token)) {
-      return res.status(401).json({ error: 'token invalid' })
     }
 
     const decodedToken = jwt.verify(req.token, process.env.SECRET)
@@ -54,16 +23,34 @@ const userExtractor = (req, res, next) => {
       return res.status(401).json({ error: 'token invalid' })
     }
 
+    const session = await Session.findOne({
+      where: { token: req.token },
+    })
+
+    if (!session || Number(session.userId) !== Number(decodedToken.id)) {
+      return res.status(401).json({ error: 'token invalid' })
+    }
+
+    const user = await User.findByPk(decodedToken.id)
+
+    if (!user || user.disabled) {
+      return res.status(401).json({ error: 'token invalid' })
+    }
+
     req.decodedToken = decodedToken
     next()
   } catch (error) {
-    return res.status(401).json({ error: 'token invalid' })
+    if (error.name === 'JsonWebTokenError' ||
+        error.name === 'TokenExpiredError' ||
+        error.name === 'NotBeforeError') {
+      return res.status(401).json({ error: 'token invalid' })
+    }
+
+    next(error)
   }
 }
 
 module.exports = {
   tokenExtractor,
   userExtractor,
-  registerToken,
-  revokeUserTokens,
 }

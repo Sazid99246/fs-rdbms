@@ -2,8 +2,7 @@ const router = require('express').Router()
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const { randomUUID } = require('crypto')
-const { User } = require('../models')
-const { registerToken } = require('../util/tokenExtractor')
+const { User, Session } = require('../models')
 
 router.post('/', async (req, res, next) => {
   try {
@@ -11,15 +10,12 @@ router.post('/', async (req, res, next) => {
 
     const user = await User.findOne({
       where: { username },
-      attributes: [
-        'id',
-        'username',
-        'password',
-      ],
+      attributes: ['id', 'username', 'password', 'name', 'disabled'],
     })
 
     const passwordCorrect =
       user &&
+      !user.disabled &&
       user.password &&
       typeof password === 'string' &&
       await bcrypt.compare(password, user.password)
@@ -43,24 +39,19 @@ router.post('/', async (req, res, next) => {
       process.env.SECRET
     )
 
-    registerToken(user.id, token)
+    await Session.create({
+      token,
+      userId: user.id,
+    })
 
-    res.json({
+    return res.json({
       token,
       username: user.username,
-      name: await getUserName(user.id),
+      name: user.name,
     })
   } catch (error) {
     next(error)
   }
 })
-
-async function getUserName(id) {
-  const user = await User.findByPk(id, {
-    attributes: ['name'],
-  })
-
-  return user.name
-}
 
 module.exports = router

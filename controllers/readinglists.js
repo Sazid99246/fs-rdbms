@@ -1,4 +1,3 @@
-
 const router = require('express').Router()
 const { User, Blog, ReadingList } = require('../models')
 const { userExtractor } = require('../util/tokenExtractor')
