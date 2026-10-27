@@ -1,8 +1,9 @@
-
 const router = require('express').Router()
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const { randomUUID } = require('crypto')
 const { User } = require('../models')
+const { registerToken } = require('../util/tokenExtractor')
 
 router.post('/', async (req, res, next) => {
   try {
@@ -35,9 +36,14 @@ router.post('/', async (req, res, next) => {
     }
 
     const token = jwt.sign(
-      userForToken,
+      {
+        ...userForToken,
+        jti: randomUUID(),
+      },
       process.env.SECRET
     )
+
+    registerToken(user.id, token)
 
     res.json({
       token,

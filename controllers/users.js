@@ -48,16 +48,58 @@ router.post('/', async (req, res, next) => {
   }
 })
 
-// GET /api/users/:id
+
+
+ // GET /api/users/:id
 router.get('/:id', async (req, res, next) => {
   try {
-    const user = await User.findByPk(req.params.id)
+    const user = await User.findByPk(req.params.id, {
+      attributes: { exclude: ['password'] },
+      include: {
+        model: Blog,
+        as: 'readingList',
+        attributes: ['id', 'url', 'title', 'author', 'likes', 'year'],
+        through: {
+          attributes: ['id', 'read'],
+        },
+      },
+    })
 
     if (!user) {
       return res.status(404).end()
     }
 
-    res.json(user)
+    const userData = user.toJSON()
+    const { readingList, ...userInfo } = userData
+
+    const readings = readingList
+      .map((blog) => {
+        const entry = blog.ReadingList
+
+        return {
+          ...blog,
+          readingList: {
+            id: entry.id,
+            read: entry.read,
+          },
+        }
+      })
+      .filter((blog) => {
+        if (req.query.read === undefined) {
+          return true
+        }
+
+        if (req.query.read !== 'true' && req.query.read !== 'false') {
+          return false
+        }
+
+        return String(blog.readingList.read) === req.query.read
+      })
+
+    return res.json({
+      ...userInfo,
+      readings,
+    })
   } catch (error) {
     next(error)
   }

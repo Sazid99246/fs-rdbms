@@ -24,7 +24,7 @@ Blog.init(
     },
     year: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       validate: {
         isInt: {
           msg: 'Year must be an integer',
