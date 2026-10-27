@@ -55,6 +55,9 @@ jobs:
 
       - name: Run tests
         run: npm test
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db?sslmode=disable
+          DB_SSL: 'false'
 
       - name: Print application logs on failure
         if: failure()
