@@ -50,6 +50,7 @@ router.post('/', userExtractor, async (req, res, next) => {
       author: req.body.author,
       url: req.body.url,
       title: req.body.title,
+      year: req.body.year,
       likes: req.body.likes ?? 0,
       userId: user.id,
     })

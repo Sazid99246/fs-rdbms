@@ -22,7 +22,8 @@ describe('Blogs API', () => {
     const newBlog = {
       title: 'Test Blog Post',
       author: 'Test Author',
-      url: 'https://example.com/test-blog'
+      url: 'https://example.com/test-blog',
+      year: 2024,
     }
 
     const response = await axios.post(`${baseUrl}/blogs`, newBlog, {
@@ -34,6 +35,54 @@ describe('Blogs API', () => {
     assert.strictEqual(response.data.author, newBlog.author)
     assert.strictEqual(response.data.url, newBlog.url)
     assert.strictEqual(response.data.likes, 0)
+  })
+
+  it('rejects a blog with a year before 1991', async () => {
+    const invalidBlog = {
+      title: 'Invalid Year Blog',
+      author: 'Test Author',
+      url: 'https://example.com/invalid-year',
+      year: 1990,
+    }
+
+    try {
+      await axios.post(`${baseUrl}/blogs`, invalidBlog, {
+        headers: {
+          Authorization: `Bearer ${testData.tokens[0]}`,
+        },
+      })
+      assert.fail('Expected the request to be rejected')
+    } catch (error) {
+      assert.strictEqual(error.response.status, 400)
+      assert.ok(
+        error.response.data.error.includes('Year must be at least 1991')
+      )
+    }
+  })
+
+  it('rejects a blog with a year in the future', async () => {
+    const invalidBlog = {
+      title: 'Future Year Blog',
+      author: 'Test Author',
+      url: 'https://example.com/future-year',
+      year: new Date().getFullYear() + 1,
+    }
+
+    try {
+      await axios.post(`${baseUrl}/blogs`, invalidBlog, {
+        headers: {
+          Authorization: `Bearer ${testData.tokens[0]}`,
+        },
+      })
+      assert.fail('Expected the request to be rejected')
+    } catch (error) {
+      assert.strictEqual(error.response.status, 400)
+      assert.ok(
+        error.response.data.error.some((message) =>
+          message.startsWith('Year cannot be greater than')
+        )
+      )
+    }
   })
 
   it('created blog appears in blogs list', async () => {
@@ -66,7 +115,7 @@ describe('Users API', () => {
   it('users have correct properties', async () => {
     const response = await axios.get(`${baseUrl}/users`)
     const user = response.data[0]
-    
+
     assert.ok(user.id)
     assert.ok(user.username)
     assert.ok(user.name)
@@ -83,7 +132,7 @@ describe('Authors API', () => {
 
   it('author stats have correct structure', async () => {
     const response = await axios.get(`${baseUrl}/authors`)
-    
+
     if (response.data.length > 0) {
       const author = response.data[0]
       assert.ok(author.author)
