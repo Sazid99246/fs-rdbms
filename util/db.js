@@ -9,12 +9,11 @@ const databaseUrl =
 const sequelize = new Sequelize(databaseUrl, {
   dialect: 'postgres',
   logging: false,
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false,
-    },
-  },
+  dialectOptions: process.env.DB_SSL === 'false'
+    ? {}
+    : {
+        ssl: { require: true, rejectUnauthorized: false },
+      },
 })
 
 const connectToDatabase = async () => {
